@@ -1,5 +1,5 @@
 
-<form [formGroup]="contactForm">
+<form [formGroup]="contactForm" (ngSubmit)="submitData(contactForm.value)">
     <div class="form-group">
         <input type="text" class="form-control" placeholder="Enter your fullname" formControlName="name" required />
         <label class="floating-label">Your Name</label>
@@ -16,8 +16,11 @@
         <textarea class="form-control textarea" placeholder="Write a message" formControlName="message" ></textarea>
         <label class="floating-label">Message</label>
     </div>
-    <button type="reset" class="btn btn-dark" [disabled]="contactForm.invalid" (click)="submitData(contactForm.value)">Send</button>
-    <p *ngIf="isSubmit" class="text-success">
+    <button type="submit" class="btn btn-dark" [disabled]="contactForm.invalid || isAPILoading">{{ submitButtonLabel }}</button>
+    <p *ngIf="isSuccess; else errorBlock" class="text-success">
         {{ submitMessage }}
     </p>
+    <ng-template #errorBlock>
+        <p class="text-error">{{ submitMessage }}</p>
+    </ng-template>
 </form>
