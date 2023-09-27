@@ -11,10 +11,10 @@ import { emailValidator } from '../../utils/email-validator';
 export class ContactformComponent implements OnInit {
   contactForm!: FormGroup;
 
-  isSubmit = true;
+  isAPILoading = false;
+  isSuccess = false;
   submitMessage = '';
-  logoUrl =
-    'https://www.agiledigitalstudio.com/assets/images/logo-emailtemplate.jpg';
+  submitButtonLabel = 'Send';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -30,24 +30,35 @@ export class ContactformComponent implements OnInit {
     });
   }
 
-  submitData(value: any) {
-    this.createPayload(value);
-    this.submitMessage = 'Submitted Sucessfully';
-    setTimeout(() => {
-      this.isSubmit = false;
-    }, 4000);
-  }
 
-  createPayload(value: any) {
+  submitData(value: any) {
     const payload = {
-      from: 'TESTING ',
-      to: value.email,
-      subject: value.subject,
       name: value.name,
-      message: value.message,
       email: value.email,
-      logoSrc: this.logoUrl,
+      message: value.message,
+      subject: value.subject
     };
-    this.mailService.sendMail(payload).subscribe();
+
+    this.isAPILoading = true;
+    this.submitButtonLabel = 'Sending...';
+
+    this.mailService.sendMail(payload)
+      .subscribe(response => {
+        this.submitButtonLabel = 'Send';
+        this.isAPILoading = false;
+
+        if (response.status) {
+          this.contactForm.reset();
+          this.isSuccess = true;
+          this.submitMessage = "Email sent successfully.";
+        } else {
+          this.isSuccess = false;
+          this.submitMessage = "Email sending failed. Try again!";
+        }
+        setTimeout(() => {
+          this.submitMessage = "";
+          this.isSuccess = false;
+        }, 5000);
+      });
   }
 }
